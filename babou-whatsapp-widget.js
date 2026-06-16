@@ -1,249 +1,308 @@
-#bb-wa-widget{
-  position:fixed;
-  right:24px;
-  bottom:24px;
-  z-index:999999;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  pointer-events:none;
-}
+(function () {
+  if (document.getElementById("bb-wa-widget")) return;
 
-#bb-wa-widget *{
-  box-sizing:border-box;
-}
+  /* ================= CONFIG ================= */
+  const phone = "66819629874";
+  const business = "BABOU SAMUI";
+  const whatsappBase = `https://wa.me/${phone}`;
 
-#bb-wa-widget .bb-active,
-#bb-wa-trigger,
-.bb-tooltip{
-  pointer-events:auto;
-}
+  /* ================= STYLE ================= */
+  const style = document.createElement("style");
+  style.textContent = `
+    #bb-wa-widget{
+      position:fixed;
+      right:24px;
+      bottom:24px;
+      z-index:999999;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
 
-#bb-wa-box{
-  width:360px;
-  overflow:hidden;
-  border-radius:26px;
-  background:#fff;
-  box-shadow:0 30px 60px rgba(0,0,0,.18),0 10px 25px rgba(0,0,0,.12);
-  opacity:0;
-  visibility:hidden;
-  transform:translateY(20px) scale(.92);
-  transition:all .35s ease;
-  margin-bottom:16px;
-}
+    #bb-wa-widget *{box-sizing:border-box;}
 
-#bb-wa-box.active{
-  opacity:1;
-  visibility:visible;
-  transform:translateY(0) scale(1);
-}
+    /* CHAT BOX */
+    .bb-box{
+      width:360px;
+      border-radius:26px;
+      background:#fff;
+      box-shadow:0 30px 60px rgba(0,0,0,.18),0 10px 25px rgba(0,0,0,.12);
+      overflow:hidden;
 
-.bb-header{
-  background:linear-gradient(135deg,#075e54,#0b7b6d);
-  color:#fff;
-  padding:20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+      opacity:0;
+      visibility:hidden;
+      transform:translateY(20px) scale(.92);
+      transition:all .35s ease;
+      pointer-events:none;
+    }
 
-.bb-agent{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
+    .bb-box.active{
+      opacity:1;
+      visibility:visible;
+      transform:translateY(0) scale(1);
+      pointer-events:auto;
+    }
 
-.bb-avatar{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  overflow:hidden;
-  background:#fff;
-  padding:8px;
-  position:relative;
-}
+    /* HEADER */
+    .bb-header{
+      background:linear-gradient(135deg,#075e54,#0b7b6d);
+      padding:20px;
+      color:#fff;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
 
-.bb-avatar img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
+    .bb-info{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
 
-.bb-online{
-  position:absolute;
-  bottom:2px;
-  right:2px;
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  background:#4dff88;
-  border:2px solid #075e54;
-}
+    .bb-avatar{
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      background:#fff;
+      padding:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
 
-.bb-name{
-  font-size:17px;
-  font-weight:700;
-}
+    .bb-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
 
-.bb-status{
-  font-size:12px;
-  color:rgba(255,255,255,.8);
-  margin-top:4px;
-}
+    .bb-name{font-size:17px;font-weight:700;}
+    .bb-status{font-size:12px;opacity:.8;margin-top:4px;}
 
-.bb-close{
-  width:38px;
-  height:38px;
-  border:none;
-  border-radius:50%;
-  background:rgba(255,255,255,.08);
-  color:#fff;
-  cursor:pointer;
-  font-size:20px;
-}
+    .bb-close{
+      width:38px;
+      height:38px;
+      border:none;
+      border-radius:50%;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      cursor:pointer;
+    }
 
-.bb-body{
-  background:#efeae2;
-  padding:22px;
-}
+    /* BODY */
+    .bb-body{
+      background:#efeae2;
+      padding:22px;
+      min-height:200px;
+    }
 
-.bb-message{
-  background:#fff;
-  padding:14px;
-  border-radius:14px;
-  border-top-left-radius:4px;
-  font-size:14px;
-  line-height:1.7;
-}
+    .bb-message{
+      background:#fff;
+      padding:14px;
+      border-radius:14px;
+      border-top-left-radius:4px;
+      width:85%;
+      animation:bbFade .4s ease;
+    }
 
-.bb-security{
-  margin-top:14px;
-  background:#e7f3ff;
-  border:1px solid #cfe5ff;
-  color:#17558f;
-  font-size:12px;
-  padding:12px;
-  border-radius:12px;
-}
+    .bb-message-title{
+      font-size:13px;
+      font-weight:700;
+      color:#075e54;
+      margin-bottom:6px;
+    }
 
-.bb-footer{
-  padding:18px;
-  background:#fff;
-}
+    .bb-message-text{
+      font-size:14px;
+      line-height:1.6;
+      color:#222;
+    }
 
-.bb-input-wrap{
-  position:relative;
-}
+    /* INPUT */
+    .bb-input-area{
+      background:#fff;
+      padding:16px;
+    }
 
-.bb-input{
-  width:100%;
-  border:none;
-  outline:none;
-  background:#f4f4f4;
-  border-radius:999px;
-  padding:15px 58px 15px 18px;
-  font-size:14px;
-}
+    .bb-input{
+      width:100%;
+      border:none;
+      outline:none;
+      background:#f4f4f4;
+      border-radius:999px;
+      padding:15px;
+      font-size:14px;
+    }
 
-.bb-send{
-  position:absolute;
-  top:50%;
-  right:8px;
-  transform:translateY(-50%);
-  width:42px;
-  height:42px;
-  border:none;
-  border-radius:50%;
-  background:#25D366;
-  color:#fff;
-  cursor:pointer;
-}
+    /* TRIGGER */
+    .bb-trigger-wrap{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:16px;
+    }
 
-.bb-trigger-wrap{
-  position:relative;
-  display:flex;
-  justify-content:flex-end;
-}
+    .bb-trigger{
+      width:68px;
+      height:68px;
+      border:none;
+      border-radius:50%;
+      background:#25D366;
+      color:#fff;
+      cursor:pointer;
+      box-shadow:0 15px 35px rgba(37,211,102,.35);
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      animation:bbBounce 2.5s infinite;
+      transition:.25s ease;
+    }
 
-.bb-tooltip{
-  position:absolute;
-  right:80px;
-  top:50%;
-  transform:translateY(-50%);
-  background:#111;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:12px;
-  font-size:12px;
-  font-weight:600;
-  white-space:nowrap;
-  opacity:0;
-  visibility:hidden;
-  transition:.3s ease;
-}
+    .bb-trigger:hover{
+      transform:translateY(-4px) scale(1.05);
+    }
 
-.bb-trigger-wrap:hover .bb-tooltip{
-  opacity:1;
-  visibility:visible;
-}
+    /* PULSE EFFECT */
+    .bb-pulse{
+      position:absolute;
+      inset:-6px;
+      border-radius:50%;
+      border:2px solid rgba(37,211,102,.35);
+      animation:bbPulse 2s infinite;
+    }
 
-#bb-wa-trigger{
-  width:68px;
-  height:68px;
-  border:none;
-  border-radius:50%;
-  background:#25D366;
-  color:#fff;
-  cursor:pointer;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 15px 35px rgba(37,211,102,.35);
-}
+    /* NOTIFICATION BADGE */
+    .bb-badge{
+      position:absolute;
+      top:6px;
+      right:6px;
+      width:14px;
+      height:14px;
+      background:#ff3b30;
+      border-radius:50%;
+      border:2px solid #fff;
+    }
 
-#bb-wa-trigger svg{
-  width:32px;
-  height:32px;
-}
+    /* ANIMATIONS */
+    @keyframes bbPulse{
+      0%{transform:scale(1);opacity:1;}
+      70%{transform:scale(1.5);opacity:0;}
+      100%{opacity:0;}
+    }
 
-.bb-ping{
-  position:absolute;
-  top:-6px;
-  left:-6px;
-  right:-6px;
-  bottom:-6px;
-  border-radius:50%;
-  border:2px solid rgba(37,211,102,.35);
-  animation:bbPulse 2s infinite;
-}
+    @keyframes bbBounce{
+      0%,100%{transform:translateY(0);}
+      50%{transform:translateY(-5px);}
+    }
 
-.bb-badge{
-  position:absolute;
-  top:3px;
-  right:3px;
-  width:16px;
-  height:16px;
-  border-radius:50%;
-  background:#ff3b30;
-  border:2px solid #fff;
-}
+    @keyframes bbFade{
+      from{opacity:0;transform:translateY(8px);}
+      to{opacity:1;transform:translateY(0);}
+    }
 
-@keyframes bbPulse{
-  0%{transform:scale(1);opacity:1;}
-  70%{transform:scale(1.5);opacity:0;}
-  100%{opacity:0;}
-}
+    @media(max-width:768px){
+      #bb-wa-widget{right:18px;bottom:18px;}
+      .bb-box{width:calc(100vw - 36px);}
+    }
+  `;
+  document.head.appendChild(style);
 
-@media(max-width:768px){
-  #bb-wa-widget{
-    right:18px;
-    bottom:18px;
+  /* ================= HTML ================= */
+  const widget = document.createElement("div");
+  widget.id = "bb-wa-widget";
+
+  widget.innerHTML = `
+    <div id="bbBox" class="bb-box">
+      <div class="bb-header">
+        <div class="bb-info">
+          <div class="bb-avatar">
+            <img src="/favicon.ico" alt="${business}">
+          </div>
+          <div>
+            <div class="bb-name">${business}</div>
+            <div class="bb-status">Typically replies within minutes</div>
+          </div>
+        </div>
+        <button id="bbClose" class="bb-close">×</button>
+      </div>
+
+      <div class="bb-body">
+        <div class="bb-message">
+          <div class="bb-message-title">${business}</div>
+          <div class="bb-message-text">
+            Welcome to ${business} ✨ We're here to assist with reservations, dining experiences, and special occasions.
+          </div>
+        </div>
+      </div>
+
+      <div class="bb-input-area">
+        <input id="bbInput" class="bb-input" placeholder="Type your message..." />
+      </div>
+    </div>
+
+    <div class="bb-trigger-wrap">
+      <button id="bbTrigger" class="bb-trigger">
+        <span class="bb-pulse"></span>
+        <span class="bb-badge"></span>
+        💬
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(widget);
+
+  /* ================= LOGIC ================= */
+  const box = document.getElementById("bbBox");
+  const trigger = document.getElementById("bbTrigger");
+  const close = document.getElementById("bbClose");
+  const input = document.getElementById("bbInput");
+
+  let lock = false;
+
+  function sendWhatsApp() {
+    const message =
+      input.value.trim() ||
+      `Hello ${business}, I'd like to make a reservation.`;
+
+    if (lock) return;
+    lock = true;
+
+    /* GTM EVENT */
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "whatsapp",
+      event_category: "Contact",
+      event_action: "WhatsApp Click",
+      event_label: business,
+      whatsapp_message: message,
+    });
+
+    window.open(
+      `${whatsappBase}?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
+
+    setTimeout(() => {
+      lock = false;
+    }, 2000);
   }
 
-  #bb-wa-box{
-    width:calc(100vw - 36px);
-  }
+  trigger.addEventListener("click", () => {
+    box.classList.toggle("active");
+  });
 
-  .bb-tooltip{
-    display:none;
-  }
-}
+  close.addEventListener("click", () => {
+    box.classList.remove("active");
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendWhatsApp();
+    }
+  });
+
+  /* OPTIONAL: show badge later (feels like "new message") */
+  setTimeout(() => {
+    const badge = document.querySelector(".bb-badge");
+    if (badge) badge.style.opacity = "1";
+  }, 3000);
+})();
