@@ -1,192 +1,249 @@
-(function () {
-  if (document.getElementById("bb-wa-widget")) return;
+#bb-wa-widget{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  z-index:999999;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  pointer-events:none;
+}
 
-  const phone = "66819629874";
-  const business = "BABOU SAMUI";
-  const favicon = "https://babousamui.com/favicon.ico";
+#bb-wa-widget *{
+  box-sizing:border-box;
+}
 
-  const style = document.createElement("style");
-  style.textContent = `
-    #bb-wa-widget{
-      position:fixed;
-      right:24px;
-      bottom:24px;
-      z-index:999999;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    }
+#bb-wa-widget .bb-active,
+#bb-wa-trigger,
+.bb-tooltip{
+  pointer-events:auto;
+}
 
-    #bb-wa-trigger{
-      width:64px;
-      height:64px;
-      border:none;
-      border-radius:50%;
-      background:#25D366;
-      color:#fff;
-      cursor:pointer;
-      box-shadow:0 15px 35px rgba(37,211,102,.35);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
+#bb-wa-box{
+  width:360px;
+  overflow:hidden;
+  border-radius:26px;
+  background:#fff;
+  box-shadow:0 30px 60px rgba(0,0,0,.18),0 10px 25px rgba(0,0,0,.12);
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(20px) scale(.92);
+  transition:all .35s ease;
+  margin-bottom:16px;
+}
 
-    #bb-wa-trigger svg{
-      width:30px;
-      height:30px;
-    }
+#bb-wa-box.active{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0) scale(1);
+}
 
-    #bb-wa-box{
-      display:none;
-      width:340px;
-      margin-bottom:16px;
-      background:#fff;
-      border-radius:24px;
-      overflow:hidden;
-      box-shadow:0 20px 50px rgba(0,0,0,.18);
-    }
+.bb-header{
+  background:linear-gradient(135deg,#075e54,#0b7b6d);
+  color:#fff;
+  padding:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-    #bb-wa-box.active{
-      display:block;
-    }
+.bb-agent{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
 
-    .bb-header{
-      background:#075e54;
-      color:#fff;
-      padding:18px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
+.bb-avatar{
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#fff;
+  padding:8px;
+  position:relative;
+}
 
-    .bb-header img{
-      width:48px;
-      height:48px;
-      border-radius:50%;
-      background:#fff;
-      padding:6px;
-    }
+.bb-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
 
-    .bb-name{
-      font-weight:700;
-      font-size:16px;
-    }
+.bb-online{
+  position:absolute;
+  bottom:2px;
+  right:2px;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#4dff88;
+  border:2px solid #075e54;
+}
 
-    .bb-status{
-      font-size:12px;
-      opacity:.8;
-    }
+.bb-name{
+  font-size:17px;
+  font-weight:700;
+}
 
-    .bb-body{
-      padding:20px;
-      background:#efeae2;
-    }
+.bb-status{
+  font-size:12px;
+  color:rgba(255,255,255,.8);
+  margin-top:4px;
+}
 
-    .bb-message{
-      background:#fff;
-      padding:14px;
-      border-radius:14px;
-      font-size:14px;
-      line-height:1.6;
-    }
+.bb-close{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+  font-size:20px;
+}
 
-    .bb-footer{
-      padding:16px;
-      background:#fff;
-    }
+.bb-body{
+  background:#efeae2;
+  padding:22px;
+}
 
-    .bb-input{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:999px;
-      background:#f4f4f4;
-      outline:none;
-      box-sizing:border-box;
-    }
+.bb-message{
+  background:#fff;
+  padding:14px;
+  border-radius:14px;
+  border-top-left-radius:4px;
+  font-size:14px;
+  line-height:1.7;
+}
 
-    @media (max-width:768px){
-      #bb-wa-widget{
-        right:18px;
-        bottom:18px;
-      }
+.bb-security{
+  margin-top:14px;
+  background:#e7f3ff;
+  border:1px solid #cfe5ff;
+  color:#17558f;
+  font-size:12px;
+  padding:12px;
+  border-radius:12px;
+}
 
-      #bb-wa-box{
-        width:calc(100vw - 36px);
-      }
-    }
-  `;
+.bb-footer{
+  padding:18px;
+  background:#fff;
+}
 
-  document.head.appendChild(style);
+.bb-input-wrap{
+  position:relative;
+}
 
-  const widget = document.createElement("div");
-  widget.id = "bb-wa-widget";
+.bb-input{
+  width:100%;
+  border:none;
+  outline:none;
+  background:#f4f4f4;
+  border-radius:999px;
+  padding:15px 58px 15px 18px;
+  font-size:14px;
+}
 
-  widget.innerHTML = `
-    <div id="bb-wa-box">
-      <div class="bb-header">
-        <img src="${favicon}" alt="${business}">
-        <div>
-          <div class="bb-name">${business}</div>
-          <div class="bb-status">Typically replies within minutes</div>
-        </div>
-      </div>
+.bb-send{
+  position:absolute;
+  top:50%;
+  right:8px;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:50%;
+  background:#25D366;
+  color:#fff;
+  cursor:pointer;
+}
 
-      <div class="bb-body">
-        <div class="bb-message">
-          Welcome to ${business} ✨ We're here to assist with reservations, dining experiences, and special occasions.
-        </div>
-      </div>
+.bb-trigger-wrap{
+  position:relative;
+  display:flex;
+  justify-content:flex-end;
+}
 
-      <div class="bb-footer">
-        <input
-          id="bb-wa-input"
-          class="bb-input"
-          type="text"
-          placeholder="Type your message..."
-        >
-      </div>
-    </div>
+.bb-tooltip{
+  position:absolute;
+  right:80px;
+  top:50%;
+  transform:translateY(-50%);
+  background:#111;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:600;
+  white-space:nowrap;
+  opacity:0;
+  visibility:hidden;
+  transition:.3s ease;
+}
 
-    <button id="bb-wa-trigger" aria-label="Open WhatsApp">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"></path>
-      </svg>
-    </button>
-  `;
+.bb-trigger-wrap:hover .bb-tooltip{
+  opacity:1;
+  visibility:visible;
+}
 
-  document.body.appendChild(widget);
+#bb-wa-trigger{
+  width:68px;
+  height:68px;
+  border:none;
+  border-radius:50%;
+  background:#25D366;
+  color:#fff;
+  cursor:pointer;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 15px 35px rgba(37,211,102,.35);
+}
 
-  const box = document.getElementById("bb-wa-box");
-  const trigger = document.getElementById("bb-wa-trigger");
-  const input = document.getElementById("bb-wa-input");
+#bb-wa-trigger svg{
+  width:32px;
+  height:32px;
+}
 
-  function openWhatsApp() {
-    const message =
-      input.value.trim() ||
-      "Hello BABOU SAMUI, I'd like to make a reservation.";
+.bb-ping{
+  position:absolute;
+  top:-6px;
+  left:-6px;
+  right:-6px;
+  bottom:-6px;
+  border-radius:50%;
+  border:2px solid rgba(37,211,102,.35);
+  animation:bbPulse 2s infinite;
+}
 
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "whatsapp",
-      event_category: "Contact",
-      event_action: "WhatsApp Click",
-      event_label: business,
-      whatsapp_message: message
-    });
+.bb-badge{
+  position:absolute;
+  top:3px;
+  right:3px;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:#ff3b30;
+  border:2px solid #fff;
+}
 
-    window.open(
-      `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+@keyframes bbPulse{
+  0%{transform:scale(1);opacity:1;}
+  70%{transform:scale(1.5);opacity:0;}
+  100%{opacity:0;}
+}
+
+@media(max-width:768px){
+  #bb-wa-widget{
+    right:18px;
+    bottom:18px;
   }
 
-  trigger.addEventListener("click", function () {
-    box.classList.toggle("active");
-  });
+  #bb-wa-box{
+    width:calc(100vw - 36px);
+  }
 
-  input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      openWhatsApp();
-    }
-  });
-})();
+  .bb-tooltip{
+    display:none;
+  }
+}
